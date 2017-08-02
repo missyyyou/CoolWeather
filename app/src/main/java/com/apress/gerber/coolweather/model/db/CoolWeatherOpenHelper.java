@@ -1,4 +1,4 @@
-package com.apress.gerber.coolweather.db;
+package com.apress.gerber.coolweather.model.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

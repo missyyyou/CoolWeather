@@ -1,11 +1,11 @@
-package com.apress.gerber.coolweather.model;
+package com.apress.gerber.coolweather.model.bean;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.apress.gerber.coolweather.db.CoolWeatherOpenHelper;
+import com.apress.gerber.coolweather.model.db.CoolWeatherOpenHelper;
 
 import java.util.ArrayList;
 import java.util.List;

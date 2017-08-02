@@ -1,4 +1,4 @@
-package com.apress.gerber.coolweather.activity;
+package com.apress.gerber.coolweather.ui.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -16,15 +16,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apress.gerber.coolweather.R;
-import com.apress.gerber.coolweather.model.City;
-import com.apress.gerber.coolweather.model.CoolWeatherDB;
-import com.apress.gerber.coolweather.model.County;
-import com.apress.gerber.coolweather.model.Province;
+import com.apress.gerber.coolweather.model.bean.City;
+import com.apress.gerber.coolweather.model.bean.CoolWeatherDB;
+import com.apress.gerber.coolweather.model.bean.County;
+import com.apress.gerber.coolweather.model.bean.Province;
 import com.apress.gerber.coolweather.util.HttpCallbackListener;
 import com.apress.gerber.coolweather.util.HttpUtil;
 import com.apress.gerber.coolweather.util.Utility;
 
-import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.apress.gerber.coolweather.activity;
+package com.apress.gerber.coolweather.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;

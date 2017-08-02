@@ -1,4 +1,4 @@
-package com.apress.gerber.coolweather.model;
+package com.apress.gerber.coolweather.model.bean;
 
 /**
  * Created by Administrator on 2017/3/13.

@@ -1,16 +1,14 @@
 package com.apress.gerber.coolweather.util;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.widget.TextView;
 
-import com.apress.gerber.coolweather.model.City;
-import com.apress.gerber.coolweather.model.CoolWeatherDB;
-import com.apress.gerber.coolweather.model.County;
-import com.apress.gerber.coolweather.model.Province;
+import com.apress.gerber.coolweather.model.bean.City;
+import com.apress.gerber.coolweather.model.bean.CoolWeatherDB;
+import com.apress.gerber.coolweather.model.bean.County;
+import com.apress.gerber.coolweather.model.bean.Province;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +16,6 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.prefs.PreferenceChangeEvent;
 
 /**
  * Created by Administrator on 2017/3/14.
