@@ -18,7 +18,8 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created by Administrator on 2017/3/14.
+ * 作者：missyyyou on 2017/3/14 07:56.
+ * 邮箱：yysha-94-03@foxmail.com
  */
 public class Utility {
     public synchronized static boolean handleProvincesResponse(CoolWeatherDB coolWeatherDB, String response) {

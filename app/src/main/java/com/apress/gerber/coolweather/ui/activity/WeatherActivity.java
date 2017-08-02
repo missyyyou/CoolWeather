@@ -19,7 +19,8 @@ import com.apress.gerber.coolweather.util.HttpUtil;
 import com.apress.gerber.coolweather.util.Utility;
 
 /**
- * Created by Administrator on 2017/3/15.
+ * 作者：missyyyou on 2017/3/15 07:55.
+ * 邮箱：yysha-94-03@foxmail.com
  */
 public class WeatherActivity extends Activity implements View.OnClickListener {
     private TextView temp1Text;

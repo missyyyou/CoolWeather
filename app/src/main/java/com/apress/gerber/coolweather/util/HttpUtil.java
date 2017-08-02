@@ -9,7 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Created by Administrator on 2017/3/14.
+ * 作者：missyyyou on 2017/3/14 07:55.
+ * 邮箱：yysha-94-03@foxmail.com
  */
 public class HttpUtil {
     public static void sendHttpRequest(final String address, final HttpCallbackListener listener) {

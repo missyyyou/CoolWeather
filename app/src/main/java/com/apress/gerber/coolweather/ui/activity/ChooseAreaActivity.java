@@ -28,7 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Administrator on 2017/3/14.
+ * 作者：missyyyou on 2017/3/14 07:55.
+ * 邮箱：yysha-94-03@foxmail.com
  */
 public class ChooseAreaActivity extends Activity {
     public static final int LEVEL_PROVINCE = 0;
