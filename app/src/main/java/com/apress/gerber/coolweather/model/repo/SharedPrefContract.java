@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 import com.apress.gerber.coolweather.model.bean.CountyInfo;
 import com.apress.gerber.coolweather.model.bean.WeatherInfo;
 
+/**
+ * 使用{@link SharedPreferences}存储当前{@link WeatherInfo}和最新{@link CountyInfo}的操作类
+ */
 public class SharedPrefContract {
     private static final String SP_CITY_SELECTED = "city_selected";
     private static final String SP_CITY_NAME = "city_name";
@@ -16,6 +19,12 @@ public class SharedPrefContract {
     private static final String SP_WEATHER_DESC = "weather_desc";
     private static final String SP_PUB_TIME = "publish_time";
 
+    /**
+     * 保存当前选中的城市天气信息
+     *
+     * @param context     上下文对象
+     * @param weatherInfo 天气信息
+     */
     public static void saveWeatherInfo(Context context, WeatherInfo weatherInfo) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.putBoolean(SP_CITY_SELECTED, true);
@@ -28,6 +37,11 @@ public class SharedPrefContract {
         editor.apply();
     }
 
+    /**
+     * 获取当前保存的城市天气信息
+     *
+     * @param context 上下文对象
+     */
     public static WeatherInfo getWeatherInfo(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         boolean isCitySelected = sp.getBoolean(SP_CITY_SELECTED, true);
@@ -44,6 +58,12 @@ public class SharedPrefContract {
     private static final String SP_COUNTY_CODE = "county_code";
     private static final String SP_COUNTY_WEATHER_CODE = "county_weather_code";
 
+    /**
+     * 保存当前选中的城市气象索引信息
+     *
+     * @param context    上下文对象
+     * @param countyInfo 城市信息
+     */
     public static void saveRecentCountyInfo(Context context, CountyInfo countyInfo) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.putString(SP_COUNTY_CODE, countyInfo.getCountyCode());
@@ -51,6 +71,11 @@ public class SharedPrefContract {
         editor.apply();
     }
 
+    /**
+     * 获取当前保存的城市气象索引信息
+     *
+     * @param context 上下文对象
+     */
     public static CountyInfo getRecentCountyInfo(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         String countyCode = sp.getString(SP_COUNTY_CODE, "");
