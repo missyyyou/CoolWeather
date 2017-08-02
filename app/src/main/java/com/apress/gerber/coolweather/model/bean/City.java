@@ -1,17 +1,7 @@
 package com.apress.gerber.coolweather.model.bean;
 
-/**
- * Created by Administrator on 2017/3/13.
- */
-
-
-/**
- * Created by Administrator on 2017/3/13.
- */
-public class City {
+public class City extends District {
     private int id;
-    private String cityName;
-    private String cityCode;
     private int provinceId;
 
     public int getId() {
@@ -23,19 +13,19 @@ public class City {
     }
 
     public String getCityName() {
-        return cityName;
+        return districtName;
     }
 
     public void setCityName(String cityName) {
-        this.cityName = cityName;
+        this.districtName = cityName;
     }
 
     public String getCityCode() {
-        return cityCode;
+        return districtCode;
     }
 
     public void setCityCode(String cityCode) {
-        this.cityCode = cityCode;
+        this.districtCode = cityCode;
     }
 
     public int getProvinceId() {

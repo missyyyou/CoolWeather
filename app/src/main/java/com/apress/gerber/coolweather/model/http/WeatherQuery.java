@@ -47,7 +47,7 @@ public class WeatherQuery {
                     String weatherDesc = weatherInfo.getString("weather");
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
                     String curDate = sdf.format(new Date());
-                    queryCallback.onSuccess(new WeatherInfo(cityName,
+                    queryCallback.onSuccess(new WeatherInfo(cityId, cityName,
                             maxTemp, minTemp, pubTime, curDate, weatherDesc));
                 } catch (JSONException e) {
                     e.printStackTrace();
