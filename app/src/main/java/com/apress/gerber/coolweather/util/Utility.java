@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.apress.gerber.coolweather.model.bean.City;
-import com.apress.gerber.coolweather.model.bean.CoolWeatherDB;
+import com.apress.gerber.coolweather.model.db.CoolWeatherDB;
 import com.apress.gerber.coolweather.model.bean.County;
 import com.apress.gerber.coolweather.model.bean.Province;
 
