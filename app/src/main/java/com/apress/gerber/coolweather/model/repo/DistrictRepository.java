@@ -73,7 +73,9 @@ public class DistrictRepository implements DistrictDataSource {
                 @Override
                 public void onDistrictsLoaded(List<Province> districts) {
                     mProvinceList = districts;
-                    callback.onDistrictsLoaded(districts);
+                    if (districts == null || districts.size() <= 0)
+                        getRemoteProvinceList(callback);
+                    else callback.onDistrictsLoaded(districts);
                 }
 
                 @Override
@@ -102,7 +104,9 @@ public class DistrictRepository implements DistrictDataSource {
                 @Override
                 public void onDistrictsLoaded(List<City> districts) {
                     mCityList = districts;
-                    callback.onDistrictsLoaded(districts);
+                    if (districts == null || districts.size() <= 0)
+                        getRemoteCityList(proCode, callback);
+                    else callback.onDistrictsLoaded(districts);
                 }
 
                 @Override
@@ -131,7 +135,9 @@ public class DistrictRepository implements DistrictDataSource {
                 @Override
                 public void onDistrictsLoaded(List<County> districts) {
                     mCountyList = districts;
-                    callback.onDistrictsLoaded(districts);
+                    if (districts == null || districts.size() <= 0)
+                        getRemoteCountyList(cityCode, callback);
+                    else callback.onDistrictsLoaded(districts);
                 }
 
                 @Override

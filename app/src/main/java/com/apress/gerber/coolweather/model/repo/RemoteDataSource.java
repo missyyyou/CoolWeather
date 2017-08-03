@@ -23,10 +23,10 @@ import java.util.List;
  */
 public class RemoteDataSource implements DistrictDataSource {
     private static final String PROVINCE_LIST_URL = "http://www.weather.com.cn/data/list3/city.xml";
-    private static final String CITY_LIST_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%d.xml";
-    private static final String COUNTY_LIST_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%d.xml";
-    private static final String COUNTY_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%d.xml";
-    private static final String WEATHER_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/cityinfo/%d.html";
+    private static final String CITY_LIST_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%02d.xml";
+    private static final String COUNTY_LIST_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%04d.xml";
+    private static final String COUNTY_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%06d.xml";
+    private static final String WEATHER_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/cityinfo/%09d.html";
 
     /**
      * 从网络加载 省一级 列表

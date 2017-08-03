@@ -89,6 +89,7 @@ public class ChooseAreaActivity extends Activity {
                     Intent intent = new Intent();
                     intent.putExtra(EXTRAS_COUNTY_CODE, countyCode);
                     setResult(RESULT_OK, intent);
+                    ChooseAreaActivity.this.finish();
                 }
             }
         });
@@ -140,7 +141,6 @@ public class ChooseAreaActivity extends Activity {
                     public void run() {
                         closeProgressDialog();
                         mDistrictList.clear();
-                        mDistrictList.add((District) districts);
                         for (City city : districts) {
                             mDistrictList.add(city);
                         }
@@ -223,7 +223,9 @@ public class ChooseAreaActivity extends Activity {
         } else if (currentLevel == LEVEL_CITY) {
             queryProvinces();
         } else {
-            setResult(RESULT_CANCELED, null);
+            Intent intent = new Intent();
+            setResult(RESULT_CANCELED, intent);
+            ChooseAreaActivity.this.finish();
         }
     }
 }
