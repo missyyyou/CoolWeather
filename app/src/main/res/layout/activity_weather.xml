@@ -52,16 +52,6 @@
             android:textSize="18sp"
             tools:text="今天18:00发布"/>
 
-        <TextView
-            android:id="@+id/current_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="@dimen/activity_vertical_margin"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            tools:text="2017年08月03日"/>
-
         <LinearLayout
             android:id="@+id/weather_info_layout"
             android:layout_width="match_parent"
@@ -69,6 +59,16 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/current_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/activity_vertical_margin"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                tools:text="2017年08月03日"/>
 
             <TextView
                 android:id="@+id/weather_desc"

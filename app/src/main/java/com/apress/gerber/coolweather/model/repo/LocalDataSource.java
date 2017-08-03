@@ -10,12 +10,14 @@ import com.apress.gerber.coolweather.model.bean.CountyInfo;
 import com.apress.gerber.coolweather.model.bean.Province;
 import com.apress.gerber.coolweather.model.bean.WeatherInfo;
 
+import java.util.List;
+
 /**
  * 本地源加载数据类
  * Provinces、Cities、Counties从数据库中进行加载
  * CountyInfo、WeatherInfo使用{@link SharedPrefContract}从SharedPreference中进行加载
  */
-public class LocalDataSource implements DistrictDataSource {
+public class LocalDataSource implements DistrictDataSource, LocalDataSink {
     private CoolWeatherDB mDBUtils;
     private Context mContext;
 
@@ -85,5 +87,30 @@ public class LocalDataSource implements DistrictDataSource {
         if (info != null && info.getCityId().equals(countyCode + ""))
             callback.onWeatherInfoLoaded(info);
         else callback.onDataNotAvailable();
+    }
+
+    @Override
+    public void saveProvinces(@NonNull List<Province> provinceList) {
+        for (Province pro : provinceList) mDBUtils.saveProvince(pro);
+    }
+
+    @Override
+    public void saveCities(@NonNull List<City> cityList) {
+        for (City city : cityList) mDBUtils.saveCity(city);
+    }
+
+    @Override
+    public void saveCounties(@NonNull List<County> countyList) {
+        for (County county : countyList) mDBUtils.saveCounty(county);
+    }
+
+    @Override
+    public void saveRecentCountyInfo(@NonNull CountyInfo info) {
+        SharedPrefContract.saveRecentCountyInfo(mContext, info);
+    }
+
+    @Override
+    public void saveWeatherInfo(@NonNull WeatherInfo info) {
+        SharedPrefContract.saveWeatherInfo(mContext, info);
     }
 }

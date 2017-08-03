@@ -23,7 +23,7 @@ public class DistrictRepository implements DistrictDataSource {
     private List<County> mCountyList;
 
     /**
-     * 该参数不仅影响 {@link #mProvinceList}、{@link #mCityList}、{@link #mCountyList}列表的加载动作，还会影响到{@link #mCachedCounty}、{@link #mCachedCountyInfo}、{@link #mCachedWeatherInfo}的加载动作
+     * 该参数影响到{@link #mCachedCounty}、{@link #mCachedCountyInfo}、{@link #mCachedWeatherInfo}的加载动作
      */
     private boolean mForceRefreshing = true;
 
@@ -38,36 +38,33 @@ public class DistrictRepository implements DistrictDataSource {
      */
     private boolean mCacheIsDirty = true;
 
-    private DistrictDataSource mRemoteDataSource;
-    private DistrictDataSource mLocalDataSource;
+    private RemoteDataSource mRemoteDataSource;
+    private LocalDataSource mLocalDataSource;
 
     private static DistrictRepository sInstance;
 
-    public static DistrictRepository getInstance(DistrictDataSource remoteDataSource,
-                                                 DistrictDataSource localDataSource) {
+    public static DistrictRepository getInstance(RemoteDataSource remoteDataSource,
+                                                 LocalDataSource localDataSource) {
         if (sInstance == null)
             sInstance = new DistrictRepository(remoteDataSource, localDataSource);
         return sInstance;
     }
 
-    public DistrictRepository(DistrictDataSource remoteDataSource,
-                              DistrictDataSource localDataSource) {
+    public DistrictRepository(RemoteDataSource remoteDataSource,
+                              LocalDataSource localDataSource) {
         mRemoteDataSource = remoteDataSource;
         mLocalDataSource = localDataSource;
     }
 
     /**
-     * 加载 省一级 列表，加载动作仅受{@link #mForceRefreshing}影响
+     * 加载 省一级 列表
      *
      * @param callback 使用回调返回数据
      */
     @Override
     public void loadProvinces(@NonNull final LoadDistrictsCallback<Province> callback) {
-        if (mProvinceList != null && !mForceRefreshing) {
+        if (mProvinceList != null) {
             callback.onDistrictsLoaded(mProvinceList);
-        }
-        if (mForceRefreshing) {
-            getRemoteProvinceList(callback);
         } else {
             mLocalDataSource.loadProvinces(new LoadDistrictsCallback<Province>() {
                 @Override
@@ -87,18 +84,15 @@ public class DistrictRepository implements DistrictDataSource {
     }
 
     /**
-     * 加载 市一级 列表，加载动作仅受{@link #mForceRefreshing}影响
+     * 加载 市一级 列表
      *
      * @param proCode  省编号
      * @param callback 使用回调返回数据
      */
     @Override
     public void loadCities(final int proCode, @NonNull final LoadDistrictsCallback<City> callback) {
-        if (mCityList != null && !mForceRefreshing) {
+        if (mCityList != null) {
             callback.onDistrictsLoaded(mCityList);
-        }
-        if (mForceRefreshing) {
-            getRemoteCityList(proCode, callback);
         } else {
             mLocalDataSource.loadCities(proCode, new LoadDistrictsCallback<City>() {
                 @Override
@@ -118,18 +112,15 @@ public class DistrictRepository implements DistrictDataSource {
     }
 
     /**
-     * 加载 县一级 列表，加载动作仅受{@link #mForceRefreshing}影响
+     * 加载 县一级 列表
      *
      * @param cityCode 县编号
      * @param callback 使用回调返回数据
      */
     @Override
     public void loadCounties(final int cityCode, @NonNull final LoadDistrictsCallback<County> callback) {
-        if (mCountyList != null && !mForceRefreshing) {
+        if (mCountyList != null) {
             callback.onDistrictsLoaded(mCountyList);
-        }
-        if (mForceRefreshing) {
-            getRemoteCountyList(cityCode, callback);
         } else {
             mLocalDataSource.loadCounties(cityCode, new LoadDistrictsCallback<County>() {
                 @Override
@@ -226,7 +217,10 @@ public class DistrictRepository implements DistrictDataSource {
             @Override
             public void onCountyInfoLoaded(CountyInfo countyInfo) {
                 mCachedCountyInfo = countyInfo;
-                callback.onCountyInfoLoaded(countyInfo);
+                mLocalDataSource.saveRecentCountyInfo(countyInfo);
+                if (mCachedCountyInfo != null) {
+                    callback.onCountyInfoLoaded(countyInfo);
+                } else callback.onDataNotAvailable();
             }
 
             @Override
@@ -248,6 +242,7 @@ public class DistrictRepository implements DistrictDataSource {
             @Override
             public void onWeatherInfoLoaded(WeatherInfo weatherInfo) {
                 mCachedWeatherInfo = weatherInfo;
+                mLocalDataSource.saveWeatherInfo(weatherInfo);
                 mForceRefreshing = false;
                 mCacheIsDirty = false;
                 callback.onWeatherInfoLoaded(weatherInfo);
@@ -271,7 +266,10 @@ public class DistrictRepository implements DistrictDataSource {
             public void onDistrictsLoaded(List<Province> districts) {
                 mForceRefreshing = false;
                 mProvinceList = districts;
-                callback.onDistrictsLoaded(districts);
+                if (mProvinceList != null && mProvinceList.size() > 0) {
+                    mLocalDataSource.saveProvinces(mProvinceList);
+                    callback.onDistrictsLoaded(districts);
+                } else callback.onDataNotAvailable();
             }
 
             @Override
@@ -293,7 +291,11 @@ public class DistrictRepository implements DistrictDataSource {
             public void onDistrictsLoaded(List<City> districts) {
                 mForceRefreshing = false;
                 mCityList = districts;
-                callback.onDistrictsLoaded(districts);
+                if (mCityList != null && mCityList.size() > 0) {
+                    mLocalDataSource.saveCities(mCityList);
+                    callback.onDistrictsLoaded(districts);
+                } else callback.onDataNotAvailable();
+
             }
 
             @Override
@@ -315,7 +317,10 @@ public class DistrictRepository implements DistrictDataSource {
             public void onDistrictsLoaded(List<County> districts) {
                 mForceRefreshing = false;
                 mCountyList = districts;
-                callback.onDistrictsLoaded(districts);
+                if (mCountyList != null && mCountyList.size() > 0) {
+                    mLocalDataSource.saveCounties(mCountyList);
+                    callback.onDistrictsLoaded(districts);
+                } else callback.onDataNotAvailable();
             }
 
             @Override
@@ -323,5 +328,13 @@ public class DistrictRepository implements DistrictDataSource {
                 callback.onDataNotAvailable();
             }
         });
+    }
+
+    public void setCachedDirty() {
+        mCacheIsDirty = true;
+    }
+
+    public void setForceRefreshing() {
+        mForceRefreshing = true;
     }
 }

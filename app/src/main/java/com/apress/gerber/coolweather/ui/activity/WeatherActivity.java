@@ -18,7 +18,6 @@ import com.apress.gerber.coolweather.model.repo.DistrictRepository;
 import com.apress.gerber.coolweather.model.repo.LocalDataSource;
 import com.apress.gerber.coolweather.model.repo.RemoteDataSource;
 import com.apress.gerber.coolweather.model.repo.SharedPrefContract;
-import com.apress.gerber.coolweather.service.AutoUpdateService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -87,12 +86,12 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             publishText.setText("同步中...");
             weatherInfoLayout.setVisibility(View.INVISIBLE);
             cityNameText.setVisibility(View.VISIBLE);
-
             if (mRepo == null) {
                 LocalDataSource localDS = new LocalDataSource(null, this);
                 RemoteDataSource remoteDS = new RemoteDataSource();
-                mRepo = new DistrictRepository(remoteDS, localDS);
+                mRepo = DistrictRepository.getInstance(remoteDS, localDS);
             }
+            mRepo.setCachedDirty();
             queryWeatherInfo(countyCode, countyWeatherCode, mRepo);
         } else {
             showWeather(SharedPrefContract.getWeatherInfo(this));
@@ -121,7 +120,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             case R.id.switch_city:
                 Intent intent = new Intent(this, ChooseAreaActivity.class);
                 intent.putExtra(EXTRAS_FROM_WEATHER_ACTY, true);
-                startActivity(intent);
+                startActivityForResult(intent, mRequestCode);
                 break;
             case R.id.refresh_weather:
                 publishText.setText("同步中...");
@@ -129,6 +128,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
                 if (info != null) {
                     String countyCode = info.getCountyCode();
                     String countyWeatherCode = info.getCountyWeatherCode();
+                    mRepo.setForceRefreshing();
                     queryWeatherInfo(countyCode, countyWeatherCode, mRepo);
                 }
                 break;
@@ -174,8 +174,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         currentDataText.setText(format.format(new Date()));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
-        Intent intent = new Intent(this, AutoUpdateService.class);
-        startService(intent);
+        SharedPrefContract.saveWeatherInfo(this, weatherInfo);
+//        Intent intent = new Intent(this, AutoUpdateService.class);
+//        startService(intent);
     }
 
     private void showError() {
