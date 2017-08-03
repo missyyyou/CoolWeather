@@ -6,23 +6,23 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apress.gerber.coolweather.R;
 import com.apress.gerber.coolweather.model.bean.City;
-import com.apress.gerber.coolweather.model.db.CoolWeatherDB;
 import com.apress.gerber.coolweather.model.bean.County;
+import com.apress.gerber.coolweather.model.bean.District;
 import com.apress.gerber.coolweather.model.bean.Province;
-import com.apress.gerber.coolweather.util.HttpCallbackListener;
-import com.apress.gerber.coolweather.util.HttpUtil;
-import com.apress.gerber.coolweather.util.Utility;
+import com.apress.gerber.coolweather.model.db.CoolWeatherDB;
+import com.apress.gerber.coolweather.model.repo.DistrictDataSource;
+import com.apress.gerber.coolweather.model.repo.DistrictRepository;
+import com.apress.gerber.coolweather.model.repo.LocalDataSource;
+import com.apress.gerber.coolweather.model.repo.RemoteDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,18 +40,12 @@ public class ChooseAreaActivity extends Activity {
     public static final int LEVEL_CITY = 1;
     public static final int LEVEL_COUNTY = 2;
 
-    private ProgressDialog mProgressDialog;
     private TextView titleText;
-
     private ListView mListView;
-    private ArrayAdapter<String> adapter;
-    private List<String> dataList = new ArrayList<String>();
+    private ProgressDialog mProgressDialog;
 
-    private CoolWeatherDB mCoolWeatherDB;
-
-    private List<Province> mProvinceList;
-    private List<City> mCityList;
-    private List<County> mCountyList;
+    private DistrictsAdapter mDistrictsAdapter;
+    private List<District> mDistrictList;
 
     private Province selectedProvince;
     private City selectedCity;
@@ -59,45 +53,61 @@ public class ChooseAreaActivity extends Activity {
     private int currentLevel;
     private boolean isFromWeatherActivity;
 
+    private DistrictRepository mRepo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_choose_area);
 
+        boolean jump2Weather = initExtras();
+        if (!jump2Weather) { // 不用跳转到WeatherActivity
+            initViews();
+            initData();
+            queryProvinces();
+        }
+    }
+
+    private boolean initExtras() {
         isFromWeatherActivity = getIntent().getBooleanExtra(EXTRAS_FROM_WEATHER_ACTY, false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
             Intent intent = new Intent(this, WeatherActivity.class);
             startActivity(intent);
-            finish();
-            return;
+            this.finish();
+            return false;
         }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        return true;
+    }
 
-        setContentView(R.layout.choose_area);
+    private void initData() {
+        CoolWeatherDB coolWeatherDB = CoolWeatherDB.getInstance(this);
+        LocalDataSource localDS = new LocalDataSource(coolWeatherDB, this);
+        RemoteDataSource remoteDS = new RemoteDataSource();
+        mRepo = new DistrictRepository(remoteDS, localDS);
+    }
 
+    private void initViews() {
         mListView = (ListView) findViewById(R.id.list_view);
         titleText = (TextView) findViewById(R.id.title_text);
-
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
-        mListView.setAdapter(adapter);
-
-        mCoolWeatherDB = CoolWeatherDB.getInstance(this);
-
-        queryProvinces();
-
+        mDistrictList = new ArrayList<>();
+        mDistrictsAdapter = new DistrictsAdapter(this, mDistrictList);
+        mListView.setAdapter(mDistrictsAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int index, long arg3) {
                 if (currentLevel == LEVEL_PROVINCE) {
-                    selectedProvince = mProvinceList.get(index);
+                    selectedProvince = (Province) mDistrictList.get(index);
                     queryCities();
                 } else if (currentLevel == LEVEL_CITY) {
-                    selectedCity = mCityList.get(index);
+                    selectedCity = (City) mDistrictList.get(index);
                     queryCounties();
                 } else if (currentLevel == LEVEL_COUNTY) {
-                    String countyCode = mCountyList.get(index).getCountyCode();
+                    County county = (County) mDistrictList.get(index);
+                    String countyCode = county.getCountyCode();
                     Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
-                    intent.putExtra("county_code", countyCode);
+                    intent.putExtra(EXTRAS_COUNTY_CODE, countyCode);
                     startActivity(intent);
                     finish();
                 }
@@ -106,97 +116,28 @@ public class ChooseAreaActivity extends Activity {
     }
 
     private void queryProvinces() {
-        mProvinceList = mCoolWeatherDB.loadProvince();
-        if (mProvinceList.size() > 0) {
-            dataList.clear();
-            for (Province province : mProvinceList) {
-                dataList.add(province.getProvinceName());
-            }
-            adapter.notifyDataSetChanged();
-            mListView.setSelection(0);
-            titleText.setText("中国");
-            currentLevel = LEVEL_PROVINCE;
-        } else {
-            queryFromServer(null, "province");
-        }
-    }
-
-    // cities in province
-    private void queryCities() {
-        mCityList = mCoolWeatherDB.loadCities(selectedProvince.getId());
-        if (mCityList.size() > 0) {
-            dataList.clear();
-            for (City city : mCityList) {
-                String content = city.getCityName() == null ? "null" : city.getCityName();
-                dataList.add(content);
-            }
-            adapter.notifyDataSetChanged();
-//            mListView.setSelection(0);
-            titleText.setText(selectedProvince.getProvinceName());
-            currentLevel = LEVEL_CITY;
-        } else {
-            queryFromServer(selectedProvince.getProvinceCode(), "city");
-        }
-    }
-
-    private void queryCounties() {
-        mCountyList = mCoolWeatherDB.loadCounties(selectedCity.getId());
-        if (mCountyList.size() > 0) {
-            dataList.clear();
-            for (County county : mCountyList) {
-                dataList.add(county.getCountyName());
-            }
-            adapter.notifyDataSetChanged();
-            mListView.setSelection(0);
-            titleText.setText(selectedCity.getCityName());
-            currentLevel = LEVEL_COUNTY;
-        } else {
-            queryFromServer(selectedCity.getCityCode(), "county");
-        }
-    }
-
-    private void queryFromServer(final String code, final String type) {
-        String address;
-        if (!TextUtils.isEmpty(code)) {
-            address = "http://www.weather.com.cn/data/list3/city" + code + ".xml";
-        } else {
-            address = "http://www.weather.com.cn/data/list3/city.xml";
-        }
         showProgressDialog();
-        HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+        mRepo.loadProvinces(new DistrictDataSource.LoadDistrictsCallback<Province>() {
             @Override
-            public void onFinish(String response) {
-                boolean result = false;
-                if ("province".equals(type)) {
-                    result = Utility.handleProvincesResponse(mCoolWeatherDB, response);
-                } else if ("city".equals(type)) {
-                    result = Utility.handleCitiesResponse(mCoolWeatherDB, response, selectedProvince.getId());
-                } else if ("county".equals(type)) {
-                    result = Utility.handleCountiesResponse(mCoolWeatherDB, response, selectedCity.getId());
-                }
-                if (result) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            closeProgressDialog();
-                            if ("province".equals(type)) {
-                                queryProvinces();
-                            } else if ("city".equals(type)) {
-                                queryCities();
-                            } else if ("county".equals(type)) {
-                                queryCounties();
-                            }
+            public void onDistrictsLoaded(final List<Province> districts) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        mDistrictList.clear();
+                        for (Province province : districts) {
+                            mDistrictList.add(province);
                         }
-                    });
-
-                } else {
-                    closeProgressDialog();
-                    Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
-                }
+                        mDistrictsAdapter.notifyDataSetChanged();
+                        mListView.setSelection(0);
+                        titleText.setText("中国");
+                        currentLevel = LEVEL_PROVINCE;
+                    }
+                });
             }
 
             @Override
-            public void onError(Exception e) {
+            public void onDataNotAvailable() {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -204,7 +145,78 @@ public class ChooseAreaActivity extends Activity {
                         Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
+        });
+    }
 
+    // cities in province
+    private void queryCities() {
+        showProgressDialog();
+        int proCode = Integer.valueOf(selectedProvince.getProvinceCode());
+        mRepo.loadCities(proCode, new DistrictDataSource.LoadDistrictsCallback<City>() {
+            @Override
+            public void onDistrictsLoaded(final List<City> districts) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        mDistrictList.clear();
+                        mDistrictList.add((District) districts);
+                        for (City city : districts) {
+                            mDistrictList.add(city);
+                        }
+                        mDistrictsAdapter.notifyDataSetChanged();
+                        //            mListView.setSelection(0);
+                        titleText.setText(selectedProvince.getProvinceName());
+                        currentLevel = LEVEL_CITY;
+                    }
+                });
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void queryCounties() {
+        showProgressDialog();
+        int cityCode = Integer.valueOf(selectedCity.getCityCode());
+        mRepo.loadCounties(cityCode, new DistrictDataSource.LoadDistrictsCallback<County>() {
+            @Override
+            public void onDistrictsLoaded(final List<County> districts) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        mDistrictList.clear();
+                        for (County county : districts) {
+                            mDistrictList.add(county);
+                        }
+                        mDistrictsAdapter.notifyDataSetChanged();
+                        mListView.setSelection(0);
+                        titleText.setText(selectedCity.getCityName());
+                        currentLevel = LEVEL_COUNTY;
+                    }
+                });
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
