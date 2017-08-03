@@ -1,4 +1,4 @@
-package com.apress.gerber.coolweather.ui.activity;
+package com.apress.gerber.coolweather.ui.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;

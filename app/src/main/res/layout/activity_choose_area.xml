@@ -4,19 +4,18 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#484E61">
+        android:layout_height="?actionBarSize"
+        android:background="@color/deepGrey">
 
         <TextView
             android:id="@+id/title_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textColor="#fff"
+            android:textColor="@color/white"
             android:textSize="24sp"/>
-    </RelativeLayout>
+    </LinearLayout>
 
     <ListView
         android:id="@+id/list_view"

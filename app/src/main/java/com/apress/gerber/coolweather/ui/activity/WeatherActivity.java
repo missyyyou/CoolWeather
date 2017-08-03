@@ -38,6 +38,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
     private TextView publishText;
     private TextView cityNameText;
     private TextView currentDataText;
+    private TextView weatherDescText;
     private LinearLayout weatherInfoLayout;
 
     private DistrictRepository mRepo;
@@ -51,10 +52,8 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_weather);
 
         boolean citySelected = initEvent();
+        initViews();
         if (citySelected) { // 已存储有城市点位信息
-            initViews();
-            String countyCode = mCountyInfo.getCountyCode();
-            int countyWeatherCode = Integer.valueOf(mCountyInfo.getCountyWeatherCode());
             initData(mCountyInfo);
         } else { // 未存储城市点位信息
             Intent intent = new Intent(this, ChooseAreaActivity.class);
@@ -67,7 +66,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
         if (mRequestCode == requestCode && resultCode == RESULT_OK) {
             String countyCode = data.getStringExtra(EXTRAS_COUNTY_CODE);
-            initViews();
             initData(new CountyInfo(countyCode, "-1"));
         }
     }
@@ -90,9 +88,11 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             weatherInfoLayout.setVisibility(View.INVISIBLE);
             cityNameText.setVisibility(View.VISIBLE);
 
-            LocalDataSource localDS = new LocalDataSource(null, this);
-            RemoteDataSource remoteDS = new RemoteDataSource();
-            mRepo = new DistrictRepository(remoteDS, localDS);
+            if (mRepo == null) {
+                LocalDataSource localDS = new LocalDataSource(null, this);
+                RemoteDataSource remoteDS = new RemoteDataSource();
+                mRepo = new DistrictRepository(remoteDS, localDS);
+            }
             queryWeatherInfo(countyCode, countyWeatherCode, mRepo);
         } else {
             showWeather(SharedPrefContract.getWeatherInfo(this));
@@ -100,12 +100,13 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
     }
 
     private void initViews() {
-        weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
-        cityNameText = (TextView) findViewById(R.id.city_name);
-        publishText = (TextView) findViewById(R.id.publish_text);
         temp1Text = (TextView) findViewById(R.id.temp1);
         temp2Text = (TextView) findViewById(R.id.temp2);
+        cityNameText = (TextView) findViewById(R.id.city_name);
+        publishText = (TextView) findViewById(R.id.publish_text);
+        weatherDescText = (TextView) findViewById(R.id.weather_desc);
         currentDataText = (TextView) findViewById(R.id.current_date);
+        weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
 
         Button switchCity = (Button) findViewById(R.id.switch_city);
         Button refreshWeather = (Button) findViewById(R.id.refresh_weather);
@@ -121,7 +122,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
                 Intent intent = new Intent(this, ChooseAreaActivity.class);
                 intent.putExtra(EXTRAS_FROM_WEATHER_ACTY, true);
                 startActivity(intent);
-                finish();
                 break;
             case R.id.refresh_weather:
                 publishText.setText("同步中...");
@@ -168,7 +168,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         cityNameText.setText(weatherInfo.getCityName());
         temp1Text.setText(weatherInfo.getMinTemp());
         temp2Text.setText(weatherInfo.getMaxTemp());
-        // weatherDescText.setText(prefs.getString("weather_desp",""));
+        weatherDescText.setText(weatherInfo.getWeatherDesc());
         publishText.setText("今天" + weatherInfo.getPubTime() + "发布");
         SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日", Locale.CHINA);
         currentDataText.setText(format.format(new Date()));

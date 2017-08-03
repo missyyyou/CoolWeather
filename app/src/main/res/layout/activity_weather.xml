@@ -1,83 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#484E61">
+        android:layout_height="?actionBarSize"
+        android:background="@color/deepGrey"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
 
         <Button
             android:id="@+id/switch_city"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
             android:background="@drawable/home"/>
 
         <TextView
             android:id="@+id/city_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textColor="#fff"
-            android:textSize="24sp"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            tools:text="黑河"/>
 
         <Button
             android:id="@+id/refresh_weather"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="10dp"
             android:background="@drawable/refresh"/>
-    </RelativeLayout>
+    </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#26A5F9">
+        android:layout_height="match_parent"
+        android:background="@color/lightBlue"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_vertical_margin">
 
         <TextView
             android:id="@+id/publish_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:textColor="#FFF"
-            android:textSize="18sp"/>
+            android:gravity="right"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            tools:text="今天18:00发布"/>
+
+        <TextView
+            android:id="@+id/current_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/activity_vertical_margin"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            tools:text="2017年08月03日"/>
 
         <LinearLayout
             android:id="@+id/weather_info_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/current_date"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:gravity="center"
-                android:textColor="#FFF"
-                android:textSize="18sp"/>
-
-            <TextView
-                android:id="@+id/weather_desp"
+                android:id="@+id/weather_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center"
-                android:textColor="#FFF"
-                android:textSize="40sp"/>
+                android:textColor="@color/white"
+                android:textSize="40sp"
+                tools:text="阵雪转多云"/>
 
+            <!--temp-->
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:orientation="horizontal">
 
@@ -86,8 +92,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:textColor="#FFF"
-                    android:textSize="40sp"/>
+                    android:textColor="@color/white"
+                    android:textSize="40sp"
+                    tools:text="-21℃"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -95,10 +102,9 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:text="-"
-                    android:textColor="#FFF"
-                    android:textSize="40sp"
-                    />
+                    android:text="@string/flaw_sign"
+                    android:textColor="@color/white"
+                    android:textSize="40sp"/>
 
                 <TextView
                     android:id="@+id/temp2"
@@ -106,9 +112,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:textSize="40sp"
-                    />
+                    tools:text="-5℃"/>
             </LinearLayout>
-
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

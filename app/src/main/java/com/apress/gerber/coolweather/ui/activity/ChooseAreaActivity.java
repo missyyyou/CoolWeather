@@ -21,6 +21,7 @@ import com.apress.gerber.coolweather.model.repo.DistrictDataSource;
 import com.apress.gerber.coolweather.model.repo.DistrictRepository;
 import com.apress.gerber.coolweather.model.repo.LocalDataSource;
 import com.apress.gerber.coolweather.model.repo.RemoteDataSource;
+import com.apress.gerber.coolweather.ui.adapter.DistrictsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
