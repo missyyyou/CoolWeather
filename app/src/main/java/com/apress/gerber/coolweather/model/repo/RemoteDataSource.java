@@ -25,7 +25,7 @@ public class RemoteDataSource implements DistrictDataSource {
     private static final String PROVINCE_LIST_URL = "http://www.weather.com.cn/data/list3/city.xml";
     private static final String CITY_LIST_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%d.xml";
     private static final String COUNTY_LIST_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%d.xml";
-    private static final String COUNTY_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/%d.xml";
+    private static final String COUNTY_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/list3/city%d.xml";
     private static final String WEATHER_INFO_URL_PLACE_HOLDER = "http://www.weather.com.cn/data/cityinfo/%d.html";
 
     /**
@@ -118,7 +118,7 @@ public class RemoteDataSource implements DistrictDataSource {
                 if (!TextUtils.isEmpty(response)) {
                     String[] array = response.split("\\|");
                     if (array.length == 2) {
-                        info = new CountyInfo(array[0], array[2]);
+                        info = new CountyInfo(array[0], array[1]);
                     }
                 }
                 if (info != null) callback.onCountyInfoLoaded(info);

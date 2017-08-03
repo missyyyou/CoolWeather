@@ -36,10 +36,19 @@ public class DistrictRepository implements DistrictDataSource {
     /**
      * 该参数只会影响到{@link #mCachedCounty}、{@link #mCachedCountyInfo}、{@link #mCachedWeatherInfo}的加载动作
      */
-    private boolean mCacheIsDirty = false;
+    private boolean mCacheIsDirty = true;
 
     private DistrictDataSource mRemoteDataSource;
     private DistrictDataSource mLocalDataSource;
+
+    private static DistrictRepository sInstance;
+
+    public static DistrictRepository getInstance(DistrictDataSource remoteDataSource,
+                                                 DistrictDataSource localDataSource) {
+        if (sInstance == null)
+            sInstance = new DistrictRepository(remoteDataSource, localDataSource);
+        return sInstance;
+    }
 
     public DistrictRepository(DistrictDataSource remoteDataSource,
                               DistrictDataSource localDataSource) {

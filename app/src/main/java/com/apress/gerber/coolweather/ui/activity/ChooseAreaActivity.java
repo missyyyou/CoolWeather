@@ -27,11 +27,15 @@ import com.apress.gerber.coolweather.util.Utility;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.apress.gerber.coolweather.ui.activity.WeatherActivity.EXTRAS_FROM_WEATHER_ACTY;
+
 /**
  * 作者：missyyyou on 2017/3/14 07:55.
  * 邮箱：yysha-94-03@foxmail.com
  */
 public class ChooseAreaActivity extends Activity {
+    public static final String EXTRAS_COUNTY_CODE = "county_code";
+
     public static final int LEVEL_PROVINCE = 0;
     public static final int LEVEL_CITY = 1;
     public static final int LEVEL_COUNTY = 2;
@@ -59,9 +63,9 @@ public class ChooseAreaActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_acitvity", false);
+        isFromWeatherActivity = getIntent().getBooleanExtra(EXTRAS_FROM_WEATHER_ACTY, false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-       if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
+        if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
             Intent intent = new Intent(this, WeatherActivity.class);
             startActivity(intent);
             finish();
@@ -74,7 +78,7 @@ public class ChooseAreaActivity extends Activity {
         mListView = (ListView) findViewById(R.id.list_view);
         titleText = (TextView) findViewById(R.id.title_text);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dataList);
         mListView.setAdapter(adapter);
 
         mCoolWeatherDB = CoolWeatherDB.getInstance(this);
@@ -158,7 +162,7 @@ public class ChooseAreaActivity extends Activity {
         } else {
             address = "http://www.weather.com.cn/data/list3/city.xml";
         }
-        showProgerssDialog();
+        showProgressDialog();
         HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
             @Override
             public void onFinish(String response) {
@@ -167,8 +171,7 @@ public class ChooseAreaActivity extends Activity {
                     result = Utility.handleProvincesResponse(mCoolWeatherDB, response);
                 } else if ("city".equals(type)) {
                     result = Utility.handleCitiesResponse(mCoolWeatherDB, response, selectedProvince.getId());
-                }
-                else if ("county".equals(type)) {
+                } else if ("county".equals(type)) {
                     result = Utility.handleCountiesResponse(mCoolWeatherDB, response, selectedCity.getId());
                 }
                 if (result) {
@@ -186,7 +189,7 @@ public class ChooseAreaActivity extends Activity {
                         }
                     });
 
-                }else{
+                } else {
                     closeProgressDialog();
                     Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
                 }
@@ -206,7 +209,7 @@ public class ChooseAreaActivity extends Activity {
         });
     }
 
-    private void showProgerssDialog() {
+    private void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setMessage("正在加载...");
