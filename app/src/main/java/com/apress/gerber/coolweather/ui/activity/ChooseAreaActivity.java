@@ -3,9 +3,7 @@ package com.apress.gerber.coolweather.ui.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -26,8 +24,6 @@ import com.apress.gerber.coolweather.model.repo.RemoteDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.apress.gerber.coolweather.ui.activity.WeatherActivity.EXTRAS_FROM_WEATHER_ACTY;
 
 /**
  * 作者：missyyyou on 2017/3/14 07:55.
@@ -51,7 +47,6 @@ public class ChooseAreaActivity extends Activity {
     private City selectedCity;
 
     private int currentLevel;
-    private boolean isFromWeatherActivity;
 
     private DistrictRepository mRepo;
 
@@ -61,24 +56,9 @@ public class ChooseAreaActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_choose_area);
 
-        boolean jump2Weather = initExtras();
-        if (!jump2Weather) { // 不用跳转到WeatherActivity
-            initViews();
-            initData();
-            queryProvinces();
-        }
-    }
-
-    private boolean initExtras() {
-        isFromWeatherActivity = getIntent().getBooleanExtra(EXTRAS_FROM_WEATHER_ACTY, false);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
-            Intent intent = new Intent(this, WeatherActivity.class);
-            startActivity(intent);
-            this.finish();
-            return false;
-        }
-        return true;
+        initViews();
+        initData();
+        queryProvinces();
     }
 
     private void initData() {
@@ -106,10 +86,9 @@ public class ChooseAreaActivity extends Activity {
                 } else if (currentLevel == LEVEL_COUNTY) {
                     County county = (County) mDistrictList.get(index);
                     String countyCode = county.getCountyCode();
-                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    Intent intent = new Intent();
                     intent.putExtra(EXTRAS_COUNTY_CODE, countyCode);
-                    startActivity(intent);
-                    finish();
+                    setResult(RESULT_OK, intent);
                 }
             }
         });
@@ -244,11 +223,7 @@ public class ChooseAreaActivity extends Activity {
         } else if (currentLevel == LEVEL_CITY) {
             queryProvinces();
         } else {
-            if (isFromWeatherActivity) {
-                Intent intent = new Intent(this, WeatherActivity.class);
-                startActivity(intent);
-            }
-            finish();
+            setResult(RESULT_CANCELED, null);
         }
     }
 }

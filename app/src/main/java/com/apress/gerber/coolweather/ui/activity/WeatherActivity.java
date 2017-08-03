@@ -29,6 +29,7 @@ import static com.apress.gerber.coolweather.ui.activity.ChooseAreaActivity.EXTRA
 /**
  * 作者：missyyyou on 2017/3/15 07:55.
  * 邮箱：yysha-94-03@foxmail.com
+ * 这是主Activity，内部包含跳转逻辑
  */
 public class WeatherActivity extends Activity implements View.OnClickListener {
     public static final String EXTRAS_FROM_WEATHER_ACTY = "from_weather_activity";
@@ -40,6 +41,8 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
     private LinearLayout weatherInfoLayout;
 
     private DistrictRepository mRepo;
+    private CountyInfo mCountyInfo;
+    private int mRequestCode = 0x10001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +50,41 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_weather);
 
-        initViews();
-        initData();
+        boolean citySelected = initEvent();
+        if (citySelected) { // 已存储有城市点位信息
+            initViews();
+            String countyCode = mCountyInfo.getCountyCode();
+            int countyWeatherCode = Integer.valueOf(mCountyInfo.getCountyWeatherCode());
+            initData(mCountyInfo);
+        } else { // 未存储城市点位信息
+            Intent intent = new Intent(this, ChooseAreaActivity.class);
+            startActivityForResult(intent, mRequestCode);
+        }
     }
 
-    private void initData() {
-        String countyCode = getIntent().getStringExtra(EXTRAS_COUNTY_CODE);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (mRequestCode == requestCode && resultCode == RESULT_OK) {
+            String countyCode = data.getStringExtra(EXTRAS_COUNTY_CODE);
+            initViews();
+            initData(new CountyInfo(countyCode, "-1"));
+        }
+    }
 
+    /**
+     * 事件判断
+     *
+     * @return 是否已存在城市信息
+     */
+    private boolean initEvent() {
+        mCountyInfo = SharedPrefContract.getRecentCountyInfo(this);
+        return mCountyInfo != null;
+    }
+
+    private void initData(CountyInfo countyInfo) {
+        String countyCode = countyInfo.getCountyCode();
+        String countyWeatherCode = countyInfo.getCountyWeatherCode();
         if (!TextUtils.isEmpty(countyCode)) {
             publishText.setText("同步中...");
             weatherInfoLayout.setVisibility(View.INVISIBLE);
@@ -62,7 +93,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             LocalDataSource localDS = new LocalDataSource(null, this);
             RemoteDataSource remoteDS = new RemoteDataSource();
             mRepo = new DistrictRepository(remoteDS, localDS);
-            queryWeatherInfo(countyCode, -1, mRepo);
+            queryWeatherInfo(countyCode, countyWeatherCode, mRepo);
         } else {
             showWeather(SharedPrefContract.getWeatherInfo(this));
         }
@@ -97,7 +128,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
                 CountyInfo info = SharedPrefContract.getRecentCountyInfo(this);
                 if (info != null) {
                     String countyCode = info.getCountyCode();
-                    int countyWeatherCode = Integer.valueOf(info.getCountyWeatherCode());
+                    String countyWeatherCode = info.getCountyWeatherCode();
                     queryWeatherInfo(countyCode, countyWeatherCode, mRepo);
                 }
                 break;
@@ -106,38 +137,40 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void queryWeatherInfo(String countyCode, int countyWeatherCode, DistrictRepository repo) {
+    private void queryWeatherInfo(String countyCode, String countyWeatherCode, DistrictRepository repo) {
         int countyCodeInt = Integer.valueOf(countyCode);
-        repo.loadWeatherInfo(countyCodeInt, countyWeatherCode, new DistrictDataSource.LoadWeatherInfoCallback() {
-            @Override
-            public void onWeatherInfoLoaded(final WeatherInfo weatherInfo) {
-                runOnUiThread(new Runnable() {
+        int countyWeatherCodeInt = Integer.valueOf(countyWeatherCode);
+        repo.loadWeatherInfo(countyCodeInt, countyWeatherCodeInt,
+                new DistrictDataSource.LoadWeatherInfoCallback() {
                     @Override
-                    public void run() {
-                        showWeather(weatherInfo);
+                    public void onWeatherInfoLoaded(final WeatherInfo weatherInfo) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showWeather(weatherInfo);
+                            }
+                        });
                     }
-                });
-            }
 
-            @Override
-            public void onDataNotAvailable() {
-                runOnUiThread(new Runnable() {
                     @Override
-                    public void run() {
-                        showError();
+                    public void onDataNotAvailable() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showError();
+                            }
+                        });
                     }
                 });
-            }
-        });
     }
 
     private void showWeather(WeatherInfo weatherInfo) {
         cityNameText.setText(weatherInfo.getCityName());
         temp1Text.setText(weatherInfo.getMinTemp());
         temp2Text.setText(weatherInfo.getMaxTemp());
-        // weatherDespText.setText(prefs.getString("weather_desp",""));
+        // weatherDescText.setText(prefs.getString("weather_desp",""));
         publishText.setText("今天" + weatherInfo.getPubTime() + "发布");
-        SimpleDateFormat format = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日", Locale.CHINA);
         currentDataText.setText(format.format(new Date()));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
